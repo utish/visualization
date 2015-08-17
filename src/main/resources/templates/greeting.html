@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="en" data-framework="jquery">
+    <head>
+        <meta charset="utf-8"></meta>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        <title>LTSS - Analytics</title>
+        <link rel="stylesheet" href="css/nv.d3.css"></link>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"></link>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css"></link>
+		<link rel="stylesheet" href="css/dc.css"></link>
+		<!-- Custom styles for this template -->
+    	<link rel="stylesheet" href="css/starter-template.css" ></link>
+    	<style>
+			
+			
+		</style>
+        
+    </head>
+    <body>
+    
+	    <nav class="navbar navbar-inverse navbar-fixed-top">
+	      <div class="container">
+	        <div class="navbar-header">
+	          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	            <span class="sr-only">Toggle navigation</span>
+	            <span class="icon-bar"></span>
+	            <span class="icon-bar"></span>
+	            <span class="icon-bar"></span>
+	          </button>
+	          <a class="navbar-brand" href="#">Project name</a>
+	        </div>
+	        <div id="navbar" class="collapse navbar-collapse">
+	          <ul class="nav navbar-nav">
+	            <li class="active"><a href="#">Home</a></li>
+	            <li><a href="#about">About</a></li>
+	            <li><a href="#contact">Contact</a></li>
+	          </ul>
+	        </div><!--/.nav-collapse -->
+	      </div>
+	    </nav>
+	    
+	    
+	    <div class="container">
+	      <!-- Example row of columns -->
+	      
+	      <!-- first row -->
+	      <div class="row">
+	      	<div class="col-md-8">
+	          <h2>Claims per Jurisdiction</h2>
+	          <p><div id="chart-jurisdiction"></div></p>
+	          <hr></hr>
+	          <p>This chart displays claims per jurisdiction. Claims are accumulated for each jurisdiction.</p>
+	        </div>
+	        
+	        <div class="col-md-4">
+	          <h2>Claims by Service Procedure Code</h2>
+	          <p><div id="chart-procedureCode"></div></p>
+	          <hr></hr>
+	          <p>Choose a Procedure Code. Claims are accumulated for each procedure code.</p>
+	          
+	       </div>
+	      
+	      </div>
+	      
+	      <!-- second row -->
+	      <div class="row">
+	        <div class="col-md-4">
+	          <h2>Race</h2>
+	          <p><div id="chart-race"></div></p>
+	          <hr></hr>
+	          <p>Choose a race. All are selected by default.</p>
+	        </div>
+	        <div class="col-md-4">
+	          <h2>Gender</h2>
+	          <p><div id="chart-gender"></div></p>
+	          <hr></hr>
+	          <p>Choose a gender. All are selected by default.</p>
+	          
+	       </div>
+	        <div class="col-md-4">
+	          <h2>Service Category</h2>
+	          <p><div id="chart-serviceCategory"></div></p>
+	          <hr></hr>
+	          <p>Choose a service category. All are selected by default.</p>
+	        </div>
+	      </div>
+		
+		  <hr></hr>	
+	      
+	
+	      <footer>
+	        <p>Copyright FEi Systems 2015</p>
+	      </footer>
+	    </div> <!-- /container -->
+	    
+	    	      
+	      
+	    <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        
+        <script src="js/nv.d3.js"></script>
+        <script src="http://dc-js.github.io/dc.js/js/crossfilter.js"></script>
+        <script src="js/dc.js"></script>
+        
+        <!-- My business logic -->
+        <script src="js/charts.js"></script>
+        
+        		
+    </body>
+</html>

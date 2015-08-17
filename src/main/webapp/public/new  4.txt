@@ -1,0 +1,7 @@
+#chart-serviceCategory {
+			height: 500px;
+			width: 400px;
+			}
+			
+			
+			<div id="chart-serviceCategory"></div>

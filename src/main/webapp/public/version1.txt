@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="en" data-framework="jquery">
+    <head>
+        <meta charset="utf-8"></meta>
+        <meta http-equiv="X-UA-Compatible" content="IE=edge"></meta>
+        <meta name="viewport" content="width=device-width, initial-scale=1"></meta>
+        <title>ravendb-client</title>
+        <link rel="stylesheet" href="css/nv.d3.css"></link>
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"></link>
+		<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css"></link>
+		<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.css"></link>
+		<!-- Custom styles for this template -->
+    	<link rel="stylesheet" href="css/starter-template.css" ></link>
+    	<style>
+			#test {
+  			height: 800px;
+  			width: 800px;
+			}
+			
+			#chart-race {
+			height: 500px;
+			width: 800px;
+			}
+			
+			#chart-gender {
+			height: 500px;
+			width: 800px;
+			}
+		</style>
+        
+    </head>
+    <body>
+    
+	    <nav class="navbar navbar-inverse navbar-fixed-top">
+	      <div class="container">
+	        <div class="navbar-header">
+	          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+	            <span class="sr-only">Toggle navigation</span>
+	            <span class="icon-bar"></span>
+	            <span class="icon-bar"></span>
+	            <span class="icon-bar"></span>
+	          </button>
+	          <a class="navbar-brand" href="#">Project name</a>
+	        </div>
+	        <div id="navbar" class="collapse navbar-collapse">
+	          <ul class="nav navbar-nav">
+	            <li class="active"><a href="#">Home</a></li>
+	            <li><a href="#about">About</a></li>
+	            <li><a href="#contact">Contact</a></li>
+	          </ul>
+	        </div><!--/.nav-collapse -->
+	      </div>
+	    </nav>
+	
+	    <div class="container">
+		  <!--  	
+	      <div class="starter-template">
+	        <h1>SQL Server Charts</h1>
+	        <p class="lead">Chart 1</p>
+	        
+	        <div id="test"></div>
+	      </div>
+	      -->
+	      
+	      <div class="starter-template">
+	        <p class="lead">Race</p>
+	        <div id="chart-race"></div>
+	      </div>
+	      
+	      <div class="starter-template">
+	        <p class="lead">Gender</p>
+	        <div id="chart-gender"></div>
+	      </div>
+	       
+	    </div>   
+	      
+	    
+	    
+    
+        <script src="http://d3js.org/d3.v3.min.js" charset="utf-8"></script>
+        <script src="js/jquery-1.10.2.min.js"></script>
+        <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+        
+        <script src="js/nv.d3.js"></script>
+        <script src="http://dc-js.github.io/dc.js/js/crossfilter.js"></script>
+        <script src="http://cdnjs.cloudflare.com/ajax/libs/dc/1.7.0/dc.js"></script>
+        
+        <script src="js/charts.js"></script>
+        
+        
+        <script type="text/javascript">
+        
+        /*
+		//test chart - this works!
+		
+		var chart = dc.barChart("#test");
+		d3.csv("/public/morley.csv", function(error, experiments) {
+		
+		  experiments.forEach(function(x) {
+		    x.Speed = +x.Speed;
+		  });
+		
+		  var ndx                 = crossfilter(experiments),
+		      runDimension        = ndx.dimension(function(d) {return +d.Run;}),
+		      speedSumGroup       = runDimension.group().reduceSum(function(d) {return d.Speed * d.Run / 1000;});
+		
+		  chart
+		    .width(768)
+		    .height(480)
+		    .x(d3.scale.linear().domain([6,20]))
+		    .brushOn(false)
+		    .yAxisLabel("This is the Y Axis!")
+		    .dimension(runDimension)
+		    .group(speedSumGroup)
+		    .renderlet(function(chart) {
+		        chart.selectAll('rect').on("click", function(d) {
+		            console.log("click!", d);
+		        });
+		    });
+		    chart.render();
+		});
+		
+		*/
+		
+		</script>
+		
+		<script type="text/javascript">
+		
+		
+		var raceChart;
+		var genderChart;
+		
+		d3.csv("/public/DataAnalysis.csv", function(error, data) {
+			console.log('retrieved the data...');
+			
+			raceChart = dc.rowChart("#chart-race");
+			genderChart = dc.pieChart("#chart-gender");
+			
+			// use cross filter to create the dimensions and grouping
+	        var ppr = crossfilter(data);
+
+	        //Race Chart
+	        var raceDim = ppr.dimension(function (d) {
+	            return d.Race;
+	        });
+
+	        var countPerRace = raceDim.group().reduceCount();
+	        
+	        
+	        //Gender Chart
+	        var genderDim = ppr.dimension(function (d) {
+	            return d.Gender;
+	        });
+
+	        var countPerGender = genderDim.group().reduceCount();
+	        
+	        
+	       //Configure the charts
+	       //race
+	       raceChart
+	            .width(300)
+	            .height(250)
+	            .dimension(raceDim)
+	            .group(countPerRace)
+	            .colors(d3.scale.category10())
+	            .label(function (d) {
+	                return d.key;
+	            })
+	            .title(function (d) {
+	                return d.key + ' / ' + d.value;
+	            })
+	            .elasticX(true).xAxis().ticks(4);
+	       
+	     //gender
+	        genderChart
+	            .width(300)
+	            .height(250)
+	            .radius(100)
+	            .dimension(genderDim)
+	            .group(countPerGender)
+	            .colors(d3.scale.category10())
+	            .label(function (d) {
+	                return d.key;
+	            })
+	            .title(function (d) {
+	                return d.key + ' / ' + d.value;
+	            });
+	      
+	     // hit it!
+	     dc.renderAll();
+	     
+	     
+		});
+		
+		</script>
+		
+    </body>
+</html>
