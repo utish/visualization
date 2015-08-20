@@ -1,7 +1,7 @@
 $(document).ready(
 		function() {
 
-			var numOfDays;
+			//var numOfDays;
 			var diagnosis;
 			var program;
 			var region;
@@ -44,6 +44,10 @@ $(document).ready(
 				}
 			});
 			
+			d3.json("/public/us-states.json", function(error, data) {
+				statesJson = data;
+			});
+			
 			function getDiagnosis(k) {
 			    return diagnosisMap[k];
 			}
@@ -58,15 +62,15 @@ $(document).ready(
 
 			
 			d3.json("/data", function(error, data) {
-				console.log('retrieved the data...');
-				console.log(data);
+				//console.log('retrieved the data...');
+				//console.log(data);
 
 				var parseDate = d3.time.format("%m/%d/%Y").parse;
 
-				numOfDaysChart = dc.rowChart("#chart-numOfDays");
-				diagnosisChart = dc.rowChart("#chart-diagnosis");
-				programChart = dc.rowChart("#chart-program");
-				regionChart = dc.rowChart("#chart-region");
+				numOfDaysChart = dc.barChart("#chart-numOfDays");
+				diagnosisChart = dc.pieChart("#chart-diagnosis");
+				programChart = dc.pieChart("#chart-program");
+				regionChart = dc.geoChoroplethChart("#chart-region");
 				numOfAdmissionsChart = dc.rowChart("#chart-numOfAdmissions");
 				costsChart = dc.rowChart("#chart-costs");
 
@@ -82,7 +86,7 @@ $(document).ready(
 				
 				// diagnosis
 				var diagnosisDim = ppr.dimension(function(d) {
-					console.log('diagnosis : ' + d.diagnosis);
+					//console.log('diagnosis : ' + d.diagnosis);
 					return d.diagnosis;
 				});
 				
@@ -99,7 +103,8 @@ $(document).ready(
 				// region
 				
 				var regionDim = ppr.dimension(function(d) {
-					return d.region;
+					// TODO: this needs to be optimized...
+					return getRegion(d.region);
 				});
 				
 				var regionCount = regionDim.group().reduceCount();
@@ -107,7 +112,7 @@ $(document).ready(
 				// numOfAdmissions
 				
 				var numOfAdmissionsDim = ppr.dimension(function(d) {
-					return d.numOfAdmissions;
+					return parseInt(d.numOfAdmissions);
 				});
 				
 				var numOfAdmissionsCount = numOfAdmissionsDim.group().reduceCount();
@@ -125,25 +130,25 @@ $(document).ready(
 				//numOfDays
 				
 				numOfDaysChart
-				.width(300)
+				.width(600)
 				.height(250)
-				.x(d3.scale.linear().domain([1,25]))
+				.margins({top: 10, right: 50, bottom: 30, left: 50})
+				
 				.dimension(numOfDaysDim)
 				.group(numOfDaysCount)
-				.colors(d3.scale.category10())
-				.label(function (d) {
-		            return d.key;
-		        })
-		        .title(function (d) {
-		            return d.key + ' / ' + d.value;
-		        })
-		        .elasticX(true).xAxis().ticks(4);
+				.transitionDuration(500)
+				.x(d3.scale.linear().domain([0, 100]))
+				.yAxisLabel("Number of people")
+				.xAxisLabel("Number of days")
+				.elasticY(true);
+				
 				
 				//diagnosis
 				
 				diagnosisChart
 		        .width(300)
 		        .height(250)
+		        .radius(120)
 		        .dimension(diagnosisDim)
 		        .group(diagnosisCount)
 		        .colors(d3.scale.category10())
@@ -151,15 +156,17 @@ $(document).ready(
 		            return getDiagnosis(d.key);
 		        })
 		        .title(function (d) {
-		            return getDiagnosis(d.key) + ' / ' + d.value;
-		        })
-		        .elasticX(true).xAxis().ticks(4);
+		            return "Diagnosis: " + getDiagnosis(d.key) + "\n" + "Number of people: " + d.value;
+		        });
+		        
 				
 				//program
 				
 				programChart
 		        .width(300)
 		        .height(250)
+		        .radius(120)
+		        .innerRadius(50)
 		        .dimension(programDim)
 		        .group(programCount)
 		        .colors(d3.scale.category10())
@@ -167,24 +174,31 @@ $(document).ready(
 		            return getProgram(d.key);
 		        })
 		        .title(function (d) {
-		            return getProgram(d.key) + ' / ' + d.value;
-		        })
-		        .elasticX(true).xAxis().ticks(4);
+		            return "Programs: " + getProgram(d.key )+ "\n" + "Number of people: " + d.value;
+		        });
+		        
 				
 				//region
-				regionChart
-		        .width(300)
-		        .height(250)
-		        .dimension(regionDim)
-		        .group(regionCount)
-		        .colors(d3.scale.category10())
-		        .label(function (d) {
-		            return getRegion(d.key);
-		        })
-		        .title(function (d) {
-		            return getRegion(d.key) + ' / ' + d.value;
-		        })
-		        .elasticX(true).xAxis().ticks(4);
+				regionChart.width(1000)
+				.height(330)
+				.dimension(regionDim)
+				.group(regionCount)
+				.colors(["#E2F2FF", "#C4E4FF", "#9ED2FF", "#81C5FF", "#6BBAFF", "#51AEFF", "#36A2FF", "#1E96FF", "#0089FF", "#0061B5"])
+				.colorDomain([0, 200])
+				.colorCalculator(function (d) { return d ? regionChart.colors()(d) : '#ccc'; })
+				.overlayGeoJson(statesJson["features"], "state", function (d) {
+					return d.properties.name;
+				})
+				.projection(d3.geo.albersUsa()
+		    				.scale(600)
+		    				.translate([340, 150]))
+				.title(function (p) {
+					return "State: " + p["key"]
+							+ "\n"
+							+ "Number of people: " + p["value"];
+				})
+				
+				
 				
 				//numOfAdmissions
 				numOfAdmissionsChart
@@ -197,8 +211,9 @@ $(document).ready(
 		            return d.key;
 		        })
 		        .title(function (d) {
-		            return d.key + ' / ' + d.value;
+		            return "Number of admissions: " + d.key + "\n" + "Number of people: " + d.value;
 		        })
+		        //.ordering(function(d) { return parseInt(d.key) })
 		        .elasticX(true).xAxis().ticks(4);
 				
 				//costs
@@ -212,7 +227,7 @@ $(document).ready(
 		            return d.key;
 		        })
 		        .title(function (d) {
-		            return d.key + ' / ' + d.value;
+		            return "Costs: " + d.key + "\n" + "Number of people: " + d.value;
 		        })
 		        .elasticX(true).xAxis().ticks(4);
 				
